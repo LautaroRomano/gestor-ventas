@@ -1,34 +1,12 @@
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import ArticulosForm from '../components/ArticulosForm'
+import NavBarDown from "../components/NavBarDownMobile";
+import { Flex, Text, Input, Button, Spacer, Select } from "@chakra-ui/react";
 
 const index = () => {
-  const [articulo, setArticulo] = useState([])
-
-  useEffect(() => {
-    axios.get('http://localhost:3000/api/articulos')
-        .then((resp) => {
-            setArticulo(resp.data)
-        })
-  })
-
   return (
-    <>
-      <div>
-        <ArticulosForm/>
+    <div>
+      <NavBarDown />
+    </div>
+  );
+};
 
-        {articulo.map((art, index) => (
-          <div key={index} className='read'>
-            <h3>{art.idArticulo}</h3>
-            <h4>{art.nombre}</h4>
-          </div>
-        ))}
-      </div>
-    </>
-  )
-}
-
-
-
-
-export default index
+export default index;

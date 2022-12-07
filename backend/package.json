@@ -9,7 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.4.3",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/icons-material": "^5.10.16",
     "axios": "^1.2.0",
+    "framer-motion": "^7.6.19",
     "mysql2": "^2.3.3",
     "next": "13.0.5",
     "react": "18.2.0",
