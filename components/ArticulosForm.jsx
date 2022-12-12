@@ -11,7 +11,7 @@ import {
   Form,
 } from "@chakra-ui/react";
 
-const ArticulosForm = () => {
+const ArticulosForm = (props) => {
   const [articulo, setArticulo] = useState({
     nombre: "",
     precio: 0.0,
@@ -36,26 +36,75 @@ const ArticulosForm = () => {
       imagen: "",
       categoria: "",
     });
+    props.getArticles();
+  };
+  const handleSubmitEdit = async (e) => {
+    await axios
+      .put(
+        `http://localhost:3000/api/articulos/${props.articuloSelected.idArticulo}`,
+        {
+          nombre: articulo.nombre,
+          precio: articulo.precio,
+          stock: articulo.stock,
+          descripcion: articulo.descripcion,
+          marca: articulo.marca,
+          imagen: articulo.imagen,
+          categoria: articulo.categoria,
+        }
+      )
+      .catch((err) => console.log(err));
+    setArticulo({
+      nombre: "",
+      precio: 0.0,
+      stock: 0,
+      descripcion: "",
+      marca: "",
+      imagen: "",
+      categoria: "",
+    });
+    props.setArticuloSelected(null);
+    props.getArticles();
   };
 
   const handleChange = (e) => {
-    // console.log(e.target.id, e.target.value)
     setArticulo({ ...articulo, [e.target.id]: e.target.value });
   };
 
-  const handleDelete = async (id) => {
-    const res = await axios.delete(`http://localhost:3000/api/articulos${id}`);
-    console.log(res);
+  const handleDelete = async () => {
+    const res = await axios.delete(
+      `http://localhost:3000/api/articulos${props.setArticuloSelected.idArticulo}`
+    );
+    props.getArticles();
   };
 
   const limpiar = () => {
     document.getElementById("nombre").value = "";
   };
 
+  useEffect(() => {
+    if (props.articuloSelected) setArticulo(props.articuloSelected);
+    else
+      setArticulo({
+        nombre: "",
+        precio: 0.0,
+        stock: 0,
+        descripcion: "",
+        marca: "",
+        imagen: "",
+        categoria: "",
+      });
+  }, [props.articuloSelected]);
+
   return (
-    <Flex bg={"cuarto.500"} flexDir="column" w={"100%"} alignItems="center">
-      <Text fontSize={"20px"} m="10px">
-        Nuevo Articulo
+    <Flex
+      bg={"#FFF"}
+      borderRadius="5px"
+      flexDir="column"
+      w={"100%"}
+      alignItems="center"
+    >
+      <Text fontSize={"20px"} m="10px" color="tercero.500">
+        {!props.articuloSelected ? "Nuevo Articulo" : "Editar Articulo"}
       </Text>
 
       <Flex flexDir={"column"} w="90%">
@@ -65,6 +114,7 @@ const ArticulosForm = () => {
           name=""
           id="nombre"
           mb={"10px"}
+          color="#565656"
           onChange={handleChange}
           value={articulo.nombre}
         />
@@ -75,6 +125,7 @@ const ArticulosForm = () => {
           name=""
           id="precio"
           mb={"10px"}
+          color="#565656"
           onChange={handleChange}
           value={articulo.precio}
         />
@@ -84,6 +135,7 @@ const ArticulosForm = () => {
           type="number"
           name=""
           id="stock"
+          color="#565656"
           mb={"10px"}
           onChange={handleChange}
           value={articulo.stock}
@@ -94,6 +146,7 @@ const ArticulosForm = () => {
           type="text"
           name=""
           id="descripcion"
+          color="#565656"
           mb={"10px"}
           onChange={handleChange}
           value={articulo.descripcion}
@@ -104,6 +157,7 @@ const ArticulosForm = () => {
           type="text"
           name=""
           id="marca"
+          color="#565656"
           mb={"10px"}
           onChange={handleChange}
           value={articulo.marca}
@@ -114,6 +168,7 @@ const ArticulosForm = () => {
           type="file"
           name=""
           id="imagen"
+          color="#565656"
           mb={"10px"}
           onChange={handleChange}
           value={articulo.imagen}
@@ -122,15 +177,38 @@ const ArticulosForm = () => {
         <Text color="tercero.500">Seleccionar la categoria</Text>
         <Select
           type="text"
+          color="#565656"
           name=""
           id=""
           mb={"10px"}
           value={articulo.categoria}
         />
-
-        <Button onClick={handleSubmit} colorScheme="blue" w={"150px"}>
-          Guardar Articulo
-        </Button>
+        <Flex w="100%" justifyContent={"center"} my="25px">
+          {!props.articuloSelected ? (
+            <Button onClick={handleSubmit} colorScheme="green" w={"150px"}>
+              Guardar Articulo
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={handleSubmitEdit}
+                colorScheme="blue"
+                w={"150px"}
+                me="10px"
+              >
+                Editar Articulo
+              </Button>
+              <Button
+                onClick={handleDelete}
+                colorScheme="red"
+                w={"150px"}
+                ms="10px"
+              >
+                Borrar Articulo
+              </Button>
+            </>
+          )}
+        </Flex>
       </Flex>
     </Flex>
   );
