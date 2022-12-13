@@ -1,16 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-
-import {
-  Flex,
-  Input,
-  Button,
-  Spacer,
-  Select,
-  Text,
-  Form,
-  SelectField,
-} from "@chakra-ui/react";
+import AddIcon from "@mui/icons-material/Add";
+import { Flex, Input, Button, Select, Text } from "@chakra-ui/react";
+import Categorias from "./Categorias";
 
 const ArticulosForm = (props) => {
   const [articulo, setArticulo] = useState({
@@ -20,10 +12,11 @@ const ArticulosForm = (props) => {
     descripcion: "",
     marca: "",
     imagen: "",
-    categoria: "",
+    idCategoria: "",
   });
 
-  const [img, setImg] = useState("")
+  const [categorias, setCategorias] = useState([]);
+  const [modalCategorias, setModalCategorias] = useState(false);
 
   const handleSubmit = async (e) => {
     const resp = await axios.post(
@@ -37,7 +30,7 @@ const ArticulosForm = (props) => {
       descripcion: "",
       marca: "",
       imagen: "",
-      categoria: "",
+      idCategoria: "",
     });
     props.getArticles();
   };
@@ -52,7 +45,7 @@ const ArticulosForm = (props) => {
           descripcion: articulo.descripcion,
           marca: articulo.marca,
           imagen: articulo.imagen,
-          categoria: articulo.categoria,
+          idCategoria: articulo.idCategoria,
         }
       )
       .catch((err) => console.log(err));
@@ -63,7 +56,7 @@ const ArticulosForm = (props) => {
       descripcion: "",
       marca: "",
       imagen: "",
-      categoria: "",
+      idCategoria: "",
     });
     props.setArticuloSelected(null);
     props.getArticles();
@@ -73,25 +66,30 @@ const ArticulosForm = (props) => {
     setArticulo({ ...articulo, [e.target.id]: e.target.value });
   };
 
-
   const imagenAA = async (e) => {
-    const CLOUDINARY_URL="https://api.cloudinary.com/v1_1/dy3mqebvq/image/upload"
-    const CLOUDINARY_ID = 'mgbcyt0d';
-    const file = e.target.files[0]
+    const CLOUDINARY_URL =
+      "https://api.cloudinary.com/v1_1/dy3mqebvq/image/upload";
+    const CLOUDINARY_ID = "mgbcyt0d";
+    const file = e.target.files[0];
 
     const formData = new FormData();
-    formData.append('file', file)
-    formData.append('upload_preset', CLOUDINARY_ID)
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_ID);
 
+    if (file) {
+      const res = await axios.post(CLOUDINARY_URL, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setArticulo({ ...articulo, imagen: res.data.url });
+    }
+  };
 
-    const res = await axios.post(CLOUDINARY_URL, formData,{
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    console.log(res)
-    
-  }
+  const handleSelectCategoria = (e) => {
+    console.log(e.target.value);
+    setArticulo({ ...articulo, idCategoria: e.target.value });
+  };
 
   const handleDelete = async () => {
     const res = await axios.delete(
@@ -114,9 +112,17 @@ const ArticulosForm = (props) => {
         descripcion: "",
         marca: "",
         imagen: "",
-        categoria: "",
+        idCategoria: "",
       });
   }, [props.articuloSelected]);
+  useEffect(() => {
+    getCategorias();
+  }, []);
+  const getCategorias = () => {
+    axios.get(`http://localhost:3000/api/categorias`).then(({ data: data }) => {
+      setCategorias(data);
+    });
+  };
 
   return (
     <Flex
@@ -126,6 +132,12 @@ const ArticulosForm = (props) => {
       w={"100%"}
       alignItems="center"
     >
+      <Flex w={"100%"} height='100%'>
+        {modalCategorias && (
+          <Categorias setModalCategorias={setModalCategorias} getCategorias={getCategorias}/>
+        )}
+      </Flex>
+
       <Text fontSize={"20px"} m="10px" color="tercero.500">
         {!props.articuloSelected ? "Nuevo Articulo" : "Editar Articulo"}
       </Text>
@@ -195,18 +207,38 @@ const ArticulosForm = (props) => {
           color="#565656"
           mb={"10px"}
           onChange={imagenAA}
-        // value={articulo.imagen}
+          // value={articulo.imagen}
         />
 
-        <Text color="tercero.500">Seleccionar la categoria</Text>
-        <Select
-          type="text"
-          color="#565656"
-          name=""
-          id=""
-          mb={"10px"}
-          value={articulo.categoria}
-        />
+        <Text color="tercero.500">Seleccionar la Categoria</Text>
+        <Flex>
+          <Select
+            placeholder="Seleccionar categoria"
+            w={"100%"}
+            type="text"
+            color="#565656"
+            name=""
+            id=""
+            mb={"10px"}
+            value={articulo.idCategoria}
+            onChange={handleSelectCategoria}
+          >
+            {categorias.length > 0 &&
+              categorias.map((cat) => (
+                <option key={cat.idCategoria} value={cat.idCategoria}>
+                  {cat.nombre}
+                </option>
+              ))}
+          </Select>
+          <Button
+            colorScheme="blue"
+            borderRadius="10px"
+            padding={"15px"}
+            onClick={() => setModalCategorias(true)}
+          >
+            Categorias
+          </Button>
+        </Flex>
         <Flex w="100%" justifyContent={"center"} my="25px">
           {!props.articuloSelected ? (
             <Button onClick={handleSubmit} colorScheme="green" w={"150px"}>
