@@ -9,6 +9,7 @@ import {
   Select,
   Text,
   Form,
+  SelectField,
 } from "@chakra-ui/react";
 
 const ArticulosForm = (props) => {
@@ -21,6 +22,8 @@ const ArticulosForm = (props) => {
     imagen: "",
     categoria: "",
   });
+
+  const [img, setImg] = useState("")
 
   const handleSubmit = async (e) => {
     const resp = await axios.post(
@@ -69,6 +72,26 @@ const ArticulosForm = (props) => {
   const handleChange = (e) => {
     setArticulo({ ...articulo, [e.target.id]: e.target.value });
   };
+
+
+  const imagenAA = async (e) => {
+    const CLOUDINARY_URL="https://api.cloudinary.com/v1_1/dy3mqebvq/image/upload"
+    const CLOUDINARY_ID = 'mgbcyt0d';
+    const file = e.target.files[0]
+
+    const formData = new FormData();
+    formData.append('file', file)
+    formData.append('upload_preset', CLOUDINARY_ID)
+
+
+    const res = await axios.post(CLOUDINARY_URL, formData,{
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    console.log(res)
+    
+  }
 
   const handleDelete = async () => {
     const res = await axios.delete(
@@ -168,10 +191,11 @@ const ArticulosForm = (props) => {
           type="file"
           name=""
           id="imagen"
+          accept="image/x-png,image/jpeg,image/jpg"
           color="#565656"
           mb={"10px"}
-          onChange={handleChange}
-          value={articulo.imagen}
+          onChange={imagenAA}
+        // value={articulo.imagen}
         />
 
         <Text color="tercero.500">Seleccionar la categoria</Text>

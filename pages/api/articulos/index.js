@@ -17,7 +17,7 @@ export default async function handler(req, res) {
 const getArticulo = async (req, res) => {
     try {
         const [result] = await connection.query(`SELECT articulos.idArticulo, articulos.nombre ,articulos.precio, articulos.stock, articulos.descripcion, 
-        articulos.marca, categorias.idCategoria, categorias.nombre AS nombre_categoria 
+        articulos.marca, articulos.imagen, categorias.idCategoria, categorias.nombre AS nombre_categoria 
         FROM articulos INNER JOIN 
         categorias ON articulos.idCategoria = categorias.idCategoria`);
         return res.status(200).json(result)
