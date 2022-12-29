@@ -1,126 +1,63 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { Flex, Input, Button, Select, Text } from "@chakra-ui/react";
+import { Flex, Input, Button, Select, Text, Spacer } from "@chakra-ui/react";
 import Categorias from "./Categorias";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 const VentasForm = (props) => {
-  const [articulo, setArticulo] = useState({
-    nombre: "",
-    precio: 0.0,
-    stock: 0,
-    descripcion: "",
-    marca: "",
-    imagen: "",
-    idCategoria: "",
-  });
-
-  const [categorias, setCategorias] = useState([]);
-  const [modalCategorias, setModalCategorias] = useState(false);
+  const [articulos, setArticulos] = useState([]);
+  const [detalleVenta, setDetalleVenta] = useState([]);
 
   const handleSubmit = async (e) => {
-    const resp = await axios.post(
-      "http://localhost:3000/api/articulos",
-      articulo
-    );
-    setArticulo({
-      nombre: "",
-      precio: 0.0,
-      stock: 0,
-      descripcion: "",
-      marca: "",
-      imagen: "",
-      idCategoria: "",
+    let total = 0;
+
+    detalleVenta.forEach((det) => {
+      total += det.art.precio + det.cantidad;
     });
-    props.getArticles();
-  };
-  const handleSubmitEdit = async (e) => {
-    await axios
-      .put(
-        `http://localhost:3000/api/articulos/${props.articuloSelected.idArticulo}`,
-        {
-          nombre: articulo.nombre,
-          precio: articulo.precio,
-          stock: articulo.stock,
-          descripcion: articulo.descripcion,
-          marca: articulo.marca,
-          imagen: articulo.imagen,
-          idCategoria: articulo.idCategoria,
-        }
-      )
-      .catch((err) => console.log(err));
-    setArticulo({
-      nombre: "",
-      precio: 0.0,
-      stock: 0,
-      descripcion: "",
-      marca: "",
-      imagen: "",
-      idCategoria: "",
+
+    await axios.post("http://localhost:3000/api/ventas", {
+      impuesto: 0,
+      total,
+      tipo_pago: "efectivo",
+      detalles: detalleVenta,
     });
-    props.setArticuloSelected(null);
-    props.getArticles();
+    setDetalleVenta([]);
+    getArticulos();
+    props.getVentas();
+    props.setViewAddventas(false);
   };
 
-  const handleChange = (e) => {
-    setArticulo({ ...articulo, [e.target.id]: e.target.value });
-  };
-
-  const imagenAA = async (e) => {
-    const CLOUDINARY_URL =
-      "https://api.cloudinary.com/v1_1/dy3mqebvq/image/upload";
-    const CLOUDINARY_ID = "mgbcyt0d";
-    const file = e.target.files[0];
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_ID);
-
-    if (file) {
-      const res = await axios.post(CLOUDINARY_URL, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+  const handleSetDetalleVenta = (producto, cantidad, art) => {
+    let detalleVentaAux = detalleVenta;
+    let b = false;
+    detalleVentaAux = detalleVentaAux.map((det) => {
+      if (det.producto === producto) {
+        b = true;
+        return {
+          producto: producto,
+          cantidad: cantidad,
+          art: art,
+        };
+      } else {
+        return det;
+      }
+    });
+    if (!b)
+      detalleVentaAux.push({
+        producto: producto,
+        cantidad: cantidad,
+        art: art,
       });
-      setArticulo({ ...articulo, imagen: res.data.url });
-    }
-  };
-
-  const handleSelectCategoria = (e) => {
-    console.log(e.target.value);
-    setArticulo({ ...articulo, idCategoria: e.target.value });
-  };
-
-  const handleDelete = async () => {
-    const res = await axios.delete(
-      `http://localhost:3000/api/articulos${props.setArticuloSelected.idArticulo}`
-    );
-    props.getArticles();
-  };
-
-  const limpiar = () => {
-    document.getElementById("nombre").value = "";
+    setDetalleVenta(detalleVentaAux);
   };
 
   useEffect(() => {
-    if (props.articuloSelected) setArticulo(props.articuloSelected);
-    else
-      setArticulo({
-        nombre: "",
-        precio: 0.0,
-        stock: 0,
-        descripcion: "",
-        marca: "",
-        imagen: "",
-        idCategoria: "",
-      });
-  }, [props.articuloSelected]);
-  useEffect(() => {
-    getCategorias();
+    getArticulos();
   }, []);
-  const getCategorias = () => {
-    axios.get(`http://localhost:3000/api/categorias`).then(({ data: data }) => {
-      setCategorias(data);
+  const getArticulos = () => {
+    axios.get(`http://localhost:3000/api/articulos`).then(({ data: data }) => {
+      setArticulos(data);
     });
   };
 
@@ -131,143 +68,218 @@ const VentasForm = (props) => {
       flexDir="column"
       w={"100%"}
       alignItems="center"
+      minH={"75vh"}
+      maxH={"75vh"}
     >
-      <Flex w={"100%"} height='100%'>
-        {modalCategorias && (
-          <Categorias setModalCategorias={setModalCategorias} getCategorias={getCategorias}/>
-        )}
-      </Flex>
-
       <Text fontSize={"20px"} m="10px" color="tercero.500">
-        {!props.articuloSelected ? "Nuevo Articulo" : "Editar Articulo"}
+        {"Nueva venta"}
       </Text>
 
-      <Flex flexDir={"column"} w="90%">
-        <Text color="tercero.500">Ingresar Nombre</Text>
+      <Flex
+        flexDir={"row"}
+        w="90%"
+        textAlign={"center"}
+        justifyContent="center"
+      >
+        <Text color="tercero.500">Buscar</Text>
         <Input
           type="text"
           name=""
           id="nombre"
           mb={"10px"}
           color="#565656"
-          onChange={handleChange}
-          value={articulo.nombre}
+          onChange={() => {}}
+          //value={articulo.nombre}
         />
+      </Flex>
+      <Flex
+        flexDir={"column"}
+        w="90%"
+        h={"100%"}
+        overflowY={"scroll"}
+        maxH={"50%"}
+      >
+        <Flex flexDir="column">
+          {articulos.map((art, index) => (
+            //""
+            <ProductCard
+              nombre={art.nombre}
+              marca={art.marca}
+              descripcion={art.descripcion}
+              precio={art.precio}
+              imagen={
+                art.imagen ||
+                "https://http2.mlstatic.com/D_NQ_NP_803855-MLA46308276931_062021-W.jpg"
+              }
+              stock={art.stock}
+              key={index}
+              art={art}
+              setDetalleVenta={handleSetDetalleVenta}
+            />
+          ))}
+        </Flex>
+      </Flex>
+      <Spacer />
 
-        <Text color="tercero.500">Ingresar precio</Text>
-        <Input
-          type="number"
-          name=""
-          id="precio"
-          mb={"10px"}
-          color="#565656"
-          onChange={handleChange}
-          value={articulo.precio}
-        />
-
-        <Text color="tercero.500">Ingresar stock</Text>
-        <Input
-          type="number"
-          name=""
-          id="stock"
-          color="#565656"
-          mb={"10px"}
-          onChange={handleChange}
-          value={articulo.stock}
-        />
-
-        <Text color="tercero.500">Ingresar descripcion</Text>
-        <Input
-          type="text"
-          name=""
-          id="descripcion"
-          color="#565656"
-          mb={"10px"}
-          onChange={handleChange}
-          value={articulo.descripcion}
-        />
-
-        <Text color="tercero.500">Ingresar marca</Text>
-        <Input
-          type="text"
-          name=""
-          id="marca"
-          color="#565656"
-          mb={"10px"}
-          onChange={handleChange}
-          value={articulo.marca}
-        />
-
-        <Text color="tercero.500">Ingresar imagen</Text>
-        <Input
-          type="file"
-          name=""
-          id="imagen"
-          accept="image/x-png,image/jpeg,image/jpg"
-          color="#565656"
-          mb={"10px"}
-          onChange={imagenAA}
-          // value={articulo.imagen}
-        />
-
-        <Text color="tercero.500">Seleccionar la Categoria</Text>
-        <Flex>
-          <Select
-            placeholder="Seleccionar categoria"
-            w={"100%"}
-            type="text"
-            color="#565656"
-            name=""
-            id=""
-            mb={"10px"}
-            value={articulo.idCategoria}
-            onChange={handleSelectCategoria}
-          >
-            {categorias.length > 0 &&
-              categorias.map((cat) => (
-                <option key={cat.idCategoria} value={cat.idCategoria}>
-                  {cat.nombre}
-                </option>
-              ))}
-          </Select>
-          <Button
-            colorScheme="blue"
-            borderRadius="10px"
-            padding={"15px"}
-            onClick={() => setModalCategorias(true)}
-          >
-            Categorias
+      <Flex w="100%" justifyContent={"center"} my="25px">
+        {!props.articuloSelected ? (
+          <Button onClick={handleSubmit} colorScheme="red" w={"150px"}>
+            Guardar Venta
           </Button>
-        </Flex>
-        <Flex w="100%" justifyContent={"center"} my="25px">
-          {!props.articuloSelected ? (
-            <Button onClick={handleSubmit} colorScheme="green" w={"150px"}>
-              Guardar Articulo
+        ) : (
+          <>
+            <Button
+              onClick={handleSubmitEdit}
+              colorScheme="blue"
+              w={"150px"}
+              me="10px"
+            >
+              Editar Articulo
             </Button>
-          ) : (
-            <>
-              <Button
-                onClick={handleSubmitEdit}
-                colorScheme="blue"
-                w={"150px"}
-                me="10px"
-              >
-                Editar Articulo
-              </Button>
-              <Button
-                onClick={handleDelete}
-                colorScheme="red"
-                w={"150px"}
-                ms="10px"
-              >
-                Borrar Articulo
-              </Button>
-            </>
-          )}
-        </Flex>
+            <Button
+              onClick={handleDelete}
+              colorScheme="red"
+              w={"150px"}
+              ms="10px"
+            >
+              Borrar Articulo
+            </Button>
+          </>
+        )}
       </Flex>
     </Flex>
   );
 };
 
 export default VentasForm;
+
+const ProductCard = (props) => {
+  const [openSelectCount, setOpenSelectCount] = useState(false);
+  const [articulo, setArticulo] = useState({
+    producto: props.art.idArticulo,
+    cantidad: 0,
+  });
+
+  const hadleChangeCantidad = (cantidad) => {
+    const newArt = {
+      ...articulo,
+      cantidad: cantidad,
+    };
+    setArticulo(newArt);
+    props.setDetalleVenta(newArt.producto, cantidad, props.art);
+  };
+
+  const handleOpenSelectCount = () => {
+    setOpenSelectCount(true);
+    setTimeout(() => {
+      setOpenSelectCount(false);
+    }, 3000);
+  };
+  return (
+    <Flex
+      my={"15px"}
+      bg={"#FFF"}
+      cursor="pointer"
+      maxH={"100px"}
+      borderTop="1px solid gray"
+    >
+      <Flex padding={"15px"} justifyContent="center" alignItems="center">
+        <Flex w={"30%"} justifyContent="start">
+          <Flex maxWidth={"100%"} height="auto">
+            <img src={props.imagen} />
+          </Flex>
+        </Flex>
+
+        <Flex flexDir={"column"} w={"70%"}>
+          <Flex flexDir={"column"}>
+            <Flex flexDir={"column"}>
+              <Text
+                color="#626262"
+                fontSize="20px"
+                fontWeight="600"
+                maxWidth="90%"
+              >
+                {props.nombre}
+              </Text>
+              <Text
+                color="rgb(16, 4, 35)"
+                fontSize="16px"
+                fontWeight="400"
+                maxWidth="90%"
+              >
+                Marca: {props.marca}
+              </Text>
+              <Text
+                color="rgb(16, 4, 35)"
+                fontSize="14px"
+                fontWeight="200"
+                maxWidth="90%"
+              >
+                En stock: {props.stock}
+              </Text>
+            </Flex>
+          </Flex>
+          <Flex>
+            <Text color="rgb(16, 4, 35)" fontSize="17px" fontWeight="600">
+              ${props.precio}
+            </Text>
+          </Flex>
+        </Flex>
+        <Flex right="15vw" display={"flow"}>
+          {openSelectCount ? (
+            <Flex
+              color={"#121212"}
+              w="120px"
+              h={"35px"}
+              borderRadius={"20px"}
+              border="1px solid black"
+              alignItems={"center"}
+              justifyContent="center"
+              bg={"#FFF"}
+            >
+              <Flex
+                alignItems={"center"}
+                justifyContent="space-between"
+                w={"70%"}
+              >
+                <Flex
+                  alignItems={"center"}
+                  justifyContent="space-between"
+                  h={"100%"}
+                  onClick={() => {
+                    hadleChangeCantidad(0);
+                  }}
+                >
+                  <DeleteOutlineOutlinedIcon />
+                </Flex>
+                <Flex>{articulo.cantidad}</Flex>
+                <Flex
+                  fontSize={"2xl"}
+                  onClick={() => {
+                    hadleChangeCantidad(articulo.cantidad + 1);
+                  }}
+                >
+                  +
+                </Flex>
+              </Flex>
+            </Flex>
+          ) : (
+            <Flex
+              color={"#121212"}
+              w="25px"
+              h={"25px"}
+              borderRadius={"50%"}
+              border="1px solid black"
+              alignItems={"center"}
+              justifyContent="center"
+              onClick={() => handleOpenSelectCount()}
+              bg={articulo.cantidad === 0 ? "#FFF" : "#EEEEEE"}
+            >
+              {articulo.cantidad === 0 ? "+" : articulo.cantidad}
+            </Flex>
+          )}
+        </Flex>
+      </Flex>
+    </Flex>
+  );
+};

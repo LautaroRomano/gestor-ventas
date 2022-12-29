@@ -5,8 +5,6 @@ import NavBarDown from "../../components/NavBarDownMobile";
 import { Flex, Text, Input, Button, Spacer, Select } from "@chakra-ui/react";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 const Index = () => {
   const [ventas, setVentas] = useState([]);
@@ -66,6 +64,7 @@ const Index = () => {
         >
           <Flex
             w={"90vw"}
+            h="90vh"
             borderRadius="50px"
             alignItems={"center"}
             justifyContent={"center"}
@@ -76,6 +75,7 @@ const Index = () => {
               ventasSelected={ventasSelected}
               setVentasSelected={setVentasSelected}
               getVentas={getVentas}
+              setViewAddventas={setViewAddventas}
             />
           </Flex>
         </Flex>
@@ -130,8 +130,8 @@ const VentaCard = (props) => {
       cursor="pointer"
       w="90%"
       onClick={() => props.getVenta(props.ven.idVenta)}
-      borderRadius='25px'
-      shadow={'2xl'}
+      borderRadius="25px"
+      shadow={"2xl"}
     >
       <Flex padding={"15px"} w="100%">
         <Flex flexDir={"column"} w="100%">
@@ -142,7 +142,7 @@ const VentaCard = (props) => {
               </Text>
               <Spacer />
               <Text color="#626262" fontSize="20px" fontWeight="600">
-                {props.fecha}
+                {props.fecha && props.fecha.slice(0, 10)}
               </Text>
             </Flex>
             <Flex flexDir={"column"}>
@@ -154,7 +154,14 @@ const VentaCard = (props) => {
                   Total: {props.ven.total}
                 </Text>
                 <Spacer />
-                <Text color="#EFEFEF" fontSize="18px" fontWeight="600" bg={'tercero.500'} p='5px' borderRadius={'10px'}>
+                <Text
+                  color="#EFEFEF"
+                  fontSize="18px"
+                  fontWeight="600"
+                  bg={"tercero.500"}
+                  p="5px"
+                  borderRadius={"10px"}
+                >
                   Ver detalle
                 </Text>
               </Flex>
