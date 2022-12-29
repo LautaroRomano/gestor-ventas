@@ -252,6 +252,16 @@ const ProductCard = (props) => {
                 >
                   <DeleteOutlineOutlinedIcon />
                 </Flex>
+
+                <Flex
+                  fontSize={"2xl"}
+                  onClick={() => {
+                    hadleChangeCantidad(articulo.cantidad - 1);
+                  }}
+                >
+                  -
+                </Flex>
+
                 <Flex>{articulo.cantidad}</Flex>
                 <Flex
                   fontSize={"2xl"}

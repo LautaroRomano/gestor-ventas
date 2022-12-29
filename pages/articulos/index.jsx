@@ -135,6 +135,8 @@ const ProductCard = (props) => {
       my={"15px"}
       bg={"#FFF"}
       cursor="pointer"
+      w={"60%"}
+      h={"300px"}
       onClick={() => props.getArticle(props.art.idArticulo)}
     >
       <Flex padding={"15px"}>
@@ -183,7 +185,7 @@ const ProductCard = (props) => {
             </Text>
           </Flex>
         </Flex>
-        <Flex w={"40%"} justifyContent="end">
+        <Flex w={"60%"} h={"60%"} justifyContent="end">
           <Flex maxWidth={"100%"} height="auto">
             <img src={props.imagen} />
           </Flex>

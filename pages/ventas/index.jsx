@@ -5,11 +5,13 @@ import NavBarDown from "../../components/NavBarDownMobile";
 import { Flex, Text, Input, Button, Spacer, Select } from "@chakra-ui/react";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import DetalleVentas from "../../components/DetalleVentas"
 
 const Index = () => {
   const [ventas, setVentas] = useState([]);
   const [viewAddventas, setViewAddventas] = useState(false);
   const [ventasSelected, setVentasSelected] = useState(null);
+  const [viewDetalleVentas, setViewDetalleVentas] = useState(false);
 
   useEffect(() => {
     getVentas();
@@ -27,9 +29,23 @@ const Index = () => {
     });
   };
 
+
   function page() {
+
+    // ===== CONTINUAR =====
+    const postDetalleVentas = () => {
+      axios.post() //insertar id con detalles de ventas
+    }
+
     return (
       <Flex w={"100vw"} h="100vh" alignItems={"center"} flexDir={"column"}>
+
+        {
+          viewDetalleVentas && (
+            <DetalleVentas setViewDetalleVentas={setViewDetalleVentas} postDetalleVentas={postDetalleVentas}/>
+          )
+        }
+
         <Flex w={"100%"} flexDir="column">
           <Flex w={"100%"} justifyContent="center">
             <Text
@@ -88,6 +104,7 @@ const Index = () => {
             tipo_pago={ven.tipo_pago}
             key={index}
             getVenta={getVenta}
+            setViewDetalleVentas={setViewDetalleVentas}
             ven={ven}
           />
         ))}
@@ -123,16 +140,20 @@ const Index = () => {
 export default Index;
 
 const VentaCard = (props) => {
+  // const [viewDetalleVentas, setViewDetalleVentas] = useState(false);
+
   return (
     <Flex
       my={"15px"}
       bg={"#FFF"}
       cursor="pointer"
       w="90%"
-      onClick={() => props.getVenta(props.ven.idVenta)}
+      // onClick={() => props.getVenta(props.ven.idVenta)}
       borderRadius="25px"
       shadow={"2xl"}
     >
+
+
       <Flex padding={"15px"} w="100%">
         <Flex flexDir={"column"} w="100%">
           <Flex flexDir={"column"} w="100%">
@@ -161,6 +182,7 @@ const VentaCard = (props) => {
                   bg={"tercero.500"}
                   p="5px"
                   borderRadius={"10px"}
+                  onClick={() => props.postDetalleVentas(true)}
                 >
                   Ver detalle
                 </Text>
