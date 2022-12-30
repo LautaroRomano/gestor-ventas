@@ -9,6 +9,8 @@ const VentasForm = (props) => {
   const [articulos, setArticulos] = useState([]);
   const [detalleVenta, setDetalleVenta] = useState([]);
 
+  // === post detalleVentas
+
   const handleSubmit = async (e) => {
     let total = 0;
 
@@ -185,7 +187,7 @@ const ProductCard = (props) => {
     >
       <Flex padding={"15px"} justifyContent="center" alignItems="center">
         <Flex w={"30%"} justifyContent="start">
-          <Flex maxWidth={"100%"} height="auto">
+          <Flex w={"50%"} h={"50%"}>
             <img src={props.imagen} />
           </Flex>
         </Flex>

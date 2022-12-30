@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Flex,
   Input,
@@ -12,6 +12,15 @@ import {
 import axios from "axios";
 
 const DetalleVentas = (props) => {
+    const [detalle, setDetalle] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:3000/api/detalles_ventas')
+        .then((resp) =>{
+            setDetalle(resp.data)
+       })
+    })
+    
 //"   
 return(
     <Flex
@@ -20,9 +29,11 @@ return(
      backgroundColor={"#fff"} 
     >
         <Flex color={"#000"}>
-            CANTIDAD:
-            sTOCK:
-            MESSI:
+            {
+                detalle.map(det => (
+                    <option>{det.idVenta}</option>
+                ))
+            }
         </Flex>
     </Flex>
 )

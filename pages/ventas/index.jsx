@@ -32,17 +32,12 @@ const Index = () => {
 
   function page() {
 
-    // ===== CONTINUAR =====
-    const postDetalleVentas = () => {
-      axios.post() //insertar id con detalles de ventas
-    }
-
     return (
       <Flex w={"100vw"} h="100vh" alignItems={"center"} flexDir={"column"}>
 
         {
           viewDetalleVentas && (
-            <DetalleVentas setViewDetalleVentas={setViewDetalleVentas} postDetalleVentas={postDetalleVentas}/>
+            <DetalleVentas />
           )
         }
 
@@ -69,6 +64,7 @@ const Index = () => {
             </Text>
           </Flex>
         </Flex>
+
         <Flex
           w={"100vw"}
           height="100vh"
@@ -140,7 +136,13 @@ const Index = () => {
 export default Index;
 
 const VentaCard = (props) => {
-  // const [viewDetalleVentas, setViewDetalleVentas] = useState(false);
+
+  const postDetalleVentas = (props) => {
+    axios.post('http://localhost:3000/api/detalles_ventas',
+    )
+    props.setViewDetalleVentas(true)
+    console.log('Enviado')
+  }
 
   return (
     <Flex
@@ -182,7 +184,7 @@ const VentaCard = (props) => {
                   bg={"tercero.500"}
                   p="5px"
                   borderRadius={"10px"}
-                  onClick={() => props.postDetalleVentas(true)}
+                  onClick={() => postDetalleVentas(props)}
                 >
                   Ver detalle
                 </Text>
