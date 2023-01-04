@@ -5,13 +5,24 @@ import NavBarDown from "../../components/NavBarDownMobile";
 import { Flex, Text, Input, Button, Spacer, Select } from "@chakra-ui/react";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import DetalleVentas from "../../components/DetalleVentas"
+import DetalleVentas from "../../components/DetalleVentas";
 
 const Index = () => {
   const [ventas, setVentas] = useState([]);
   const [viewAddventas, setViewAddventas] = useState(false);
   const [ventasSelected, setVentasSelected] = useState(null);
   const [viewDetalleVentas, setViewDetalleVentas] = useState(false);
+  const [detalle, setDetalle] = useState([]);
+
+  const getDetalle = (idVenta) => {
+    axios
+      .get(`http://localhost:3000/api/detalles_ventas/${idVenta}`)
+      .then((resp) => {
+        console.log("data:", resp.data);
+        setDetalle(resp.data);
+      });
+    setViewDetalleVentas(true);
+  };
 
   useEffect(() => {
     getVentas();
@@ -29,17 +40,15 @@ const Index = () => {
     });
   };
 
-
   function page() {
-
     return (
       <Flex w={"100vw"} h="100vh" alignItems={"center"} flexDir={"column"}>
-
-        {
-          viewDetalleVentas && (
-            <DetalleVentas />
-          )
-        }
+        {viewDetalleVentas && (
+          <DetalleVentas
+            setViewDetalleVentas={setViewDetalleVentas}
+            detalle={detalle}
+          />
+        )}
 
         <Flex w={"100%"} flexDir="column">
           <Flex w={"100%"} justifyContent="center">
@@ -102,6 +111,7 @@ const Index = () => {
             getVenta={getVenta}
             setViewDetalleVentas={setViewDetalleVentas}
             ven={ven}
+            getDetalle={getDetalle}
           />
         ))}
         <Flex
@@ -136,14 +146,6 @@ const Index = () => {
 export default Index;
 
 const VentaCard = (props) => {
-
-  const postDetalleVentas = (props) => {
-    axios.post('http://localhost:3000/api/detalles_ventas',
-    )
-    props.setViewDetalleVentas(true)
-    console.log('Enviado')
-  }
-
   return (
     <Flex
       my={"15px"}
@@ -154,8 +156,6 @@ const VentaCard = (props) => {
       borderRadius="25px"
       shadow={"2xl"}
     >
-
-
       <Flex padding={"15px"} w="100%">
         <Flex flexDir={"column"} w="100%">
           <Flex flexDir={"column"} w="100%">
@@ -184,7 +184,7 @@ const VentaCard = (props) => {
                   bg={"tercero.500"}
                   p="5px"
                   borderRadius={"10px"}
-                  onClick={() => postDetalleVentas(props)}
+                  onClick={() => props.getDetalle(props.ven.idVenta)}
                 >
                   Ver detalle
                 </Text>

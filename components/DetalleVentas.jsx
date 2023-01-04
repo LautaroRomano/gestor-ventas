@@ -12,32 +12,30 @@ import {
 import axios from "axios";
 
 const DetalleVentas = (props) => {
-    const [detalle, setDetalle] = useState([]);
-
-    useEffect(() => {
-        axios.get('http://localhost:3000/api/detalles_ventas')
-        .then((resp) =>{
-            setDetalle(resp.data)
-       })
-    })
-    
-//"   
-return(
+  //"
+  return (
     <Flex
-     w={"60%"}
-     h={"80%"}
-     backgroundColor={"#fff"} 
+      w={"90vw"}
+      h={"80vh"}
+      mt="55px"
+      position="fixed"
+      zIndex={20}
+      backgroundColor={"#fff"}
     >
-        <Flex color={"#000"}>
-            {
-                detalle.map(det => (
-                    <option>{det.idVenta}</option>
-                ))
-            }
-        </Flex>
+      <Flex color={"#000"}>
+        <Button onClick={() => props.setViewDetalleVentas(false)}>
+          Cerrar
+        </Button>
+        {props.detalle.map((det, i) => (
+          <Flex key={i} flexDir='column'>
+            <Text>{det.cantidad}</Text>
+            <Text>{det.nombre}</Text>
+            <Text>{det.total}</Text>
+          </Flex>
+        ))}
+      </Flex>
     </Flex>
-)
+  );
 };
 
 export default DetalleVentas;
-
