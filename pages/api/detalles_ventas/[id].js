@@ -39,10 +39,15 @@ const deleteDetalleVentas = async (req, res, id) => {
 
 // NO ANDA :(
 const putDetalleVentas = async (req, res, id) => {
+  const newBody = {
+    idVenta: req.body.idVenta,
+    IdArticulo: req.body.IdArticulo,
+    cantidad: req.body.cantidad,
+  };
   try {
     const [result] = await connection.query(
       "UPDATE detalle_ventas SET ? WHERE idDetalleVenta=?",
-      [req.body, id]
+      [newBody, id]
     );
     return res.status(204).json(); //204 no espera respuesta, devuelve un json vacio
   } catch (error) {
